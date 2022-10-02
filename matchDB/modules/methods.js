@@ -56,7 +56,7 @@ class matchDB{
                 if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {db} can not be empty'};
                 if(!context.hasOwnProperty('formName')) return {result:false,msg:'[MatchDB]:Property {formName} is needed'};
                 if (context.formName === '') return  {result:false,msg:'[MatchDB]:Property {formName} can not be empty'};
-                if(!context.hasOwnProperty('format') && !(typeof context.format === 'array')) return {result:false,msg:'[MatchDB]:Property {format} is needed and it is needed as an Array'};
+                if(!context.hasOwnProperty('format') || !(typeof context.format === 'object')) return {result:false,msg:'[MatchDB]:Property {format} is needed and it is needed as an Array'};
                 if (context.format.size === 0) return  {result:false,msg:'[MatchDB]:Property {format} array can not be empty'};
                 if (context.format.includes('mdbID')) return  {result:false,msg:'[MatchDB]:Property {format} array can not includes an value called {mdbID}'};
                 break;
