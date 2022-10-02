@@ -1,11 +1,12 @@
 {
   "name": "matchdb",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
-    "normalize": "concurrently \"pm2 start ./bin/www\" \"node ./bin/normalize.js\"",
+    "normalize": "concurrently \"pm2 start ./bin/www\" \"node ./bin/normalize.js\" \"pm2 save\"",
     "on": "pm2 start ./bin/www",
     "off": "pm2 stop ./bin/www",
+    "restart": "pm2 restart ./bin/www",
     "start": "node ./bin/www"
   },
   "dependencies": {

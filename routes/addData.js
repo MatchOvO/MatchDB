@@ -23,7 +23,7 @@ router.post('/', function(req, res, next) {
             await mdb.addData(context)
             return res.send({
                 status:200,
-                msg:`added an data`
+                msg:`added an data in ${context.form}`
             })
         }catch(e){
             return res.send({
