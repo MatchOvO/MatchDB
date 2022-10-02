@@ -8,10 +8,11 @@ router.post('/', function(req, res, next) {
     console.log(req.body);
     const context = req.body;
     // Check Context
-    if (!mdb.contextCheck('addData',context).result){
+    const checkResult = mdb.contextCheck('addData',context)
+    if (!checkResult.result){
         return res.send({
             status:421,
-            msg:'[ERROR]: post or context format error,please use JSON to post or use the correct context format'
+            msg:checkResult.msg
         })
     }
     // Operation

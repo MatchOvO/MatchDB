@@ -56,9 +56,9 @@ class matchDB{
                 if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {db} can not be empty'};
                 if(!context.hasOwnProperty('formName')) return {result:false,msg:'[MatchDB]:Property {formName} is needed'};
                 if (context.formName === '') return  {result:false,msg:'[MatchDB]:Property {formName} can not be empty'};
-                if(!context.hasOwnProperty('format') || !(typeof context.format === 'object')) return {result:false,msg:'[MatchDB]:Property {format} is needed and it is needed as an Array'};
-                if (context.format.size === 0) return  {result:false,msg:'[MatchDB]:Property {format} array can not be empty'};
-                if (context.format.includes('mdbID')) return  {result:false,msg:'[MatchDB]:Property {format} array can not includes an value called {mdbID}'};
+                if(!context.hasOwnProperty('format') || !Array.isArray(context.format)) return {result:false,msg:'[MatchDB]:Property {format} is needed and it is needed as an Array'};
+                if (context.format.length === 0) return  {result:false,msg:'[MatchDB]:Property {format} can not be an empty Array'};
+                if (context.format.includes('mdbID')) return  {result:false,msg:'[MatchDB]:Property {format} Array can not includes an value called {mdbID}'};
                 break;
             case 'addData':
                 if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
@@ -66,7 +66,7 @@ class matchDB{
                 if(!context.hasOwnProperty('form')) return {result:false,msg:'[MatchDB]:Property {form} is needed'};
                 if (context.form === '') return  {result:false,msg:'[MatchDB]:Property {form} can not be empty'};
                 if(!context.hasOwnProperty('data')) return {result:false,msg:'[MatchDB]:Property {data} is needed'};
-                if (typeof context.data !== 'object') return {result:false,msg:'[MatchDB]:Property {data} should be an Object'};
+                if (!(context.data.constructor === Object)) return {result:false,msg:'[MatchDB]:Property {data} should be an Object'};
         }
         return {result}
     }
@@ -108,7 +108,11 @@ class matchDB{
         contextData.mdbID = uuid()
         let newData = {}
         dataFormat.forEach((element)=>{
-            newData[element] = contextData[element]
+            if (contextData[element]){
+                newData[element] = contextData[element]
+            }else{
+                newData[element] = ''
+            }
         })
         return newData
     }
