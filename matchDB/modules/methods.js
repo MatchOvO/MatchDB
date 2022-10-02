@@ -11,7 +11,7 @@ class matchDB{
                         dbConfig = JSON.parse(await fs.readFile(`./matchDB/matchDB_root/${db}/db_cnf.json`,'utf8'))
                         resolve(dbConfig)
                     }catch (e) {
-                        reject(e.message)
+                        reject(e)
                     }
                 }
                 handler().then()
@@ -78,7 +78,7 @@ class matchDB{
     updateRootConfig(){
         async function handler(){
             try{
-                const oldList =await fs.readdir('./matchDB/matchDB_root')
+                const oldList =await fs.readdir('./matchDB/matchDB_root/')
                 const rootConfigStr = await fs.readFile('./matchDB/matchDB_root/root_cnf.json','utf8')
                 const rootConfig = JSON.parse(rootConfigStr)
                 rootConfig.dbInfo.size = oldList.length - 1
@@ -96,13 +96,13 @@ class matchDB{
     updateDatabaseConfig(db){
         async function handler(){
             try {
-                const oldList =await fs.readdir(`./matchDB/matchDB_root/${db}`)
+                const oldList =await fs.readdir(`./matchDB/matchDB_root/${db}/`)
                 const dbConfigStr = await fs.readFile(`./matchDB/matchDB_root/${db}/db_cnf.json`,'utf8')
                 const dbConfig = JSON.parse(dbConfigStr)
                 dbConfig.dbInfo.size = oldList.length - 1
                 const newList = oldList.filter(e=>e !== 'db_cnf.json')
-                console.log(newList)
-                dbConfig.database = newList
+                console.log('new form list'+newList)
+                dbConfig.form = newList
                 await fs.writeFile(`./matchDB/matchDB_root/${db}/db_cnf.json`,JSON.stringify(dbConfig))
             }catch (e) {
                 throw new Error(e.message)
@@ -120,7 +120,7 @@ class matchDB{
             try {
                 const path = `./matchDB/matchDB_root/${context.db}/${context.formName}`
                 const dbConfig = await readDatabaseConfig
-                if (!(dbConfig.database.includes(context.formName))){
+                if (!(dbConfig.form.includes(context.formName))){
                     await Promise.all([
                         fs.writeFile(path,newForm),
                         updateDatabaseConfig(context.db)

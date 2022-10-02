@@ -1,16 +1,25 @@
 {
   "name": "matchdb",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
+    "normalize": "concurrently \"pm2 start ./bin/www\" \"node ./bin/normalize.js\"",
+    "on": "pm2 start ./bin/www",
+    "off": "pm2 stop ./bin/www",
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "axios": "^0.27.2",
+    "concurrently": "^7.4.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
+    "pm2": "^5.2.0",
     "pug": "2.0.0-beta11"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
   }
 }
