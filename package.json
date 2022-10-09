@@ -1,6 +1,6 @@
 {
   "name": "matchdb",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "scripts": {
     "normalize": "concurrently \"pm2 start ./bin/www\" \"node ./bin/normalize.js\" \"pm2 save\"",
