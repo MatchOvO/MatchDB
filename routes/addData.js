@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
 const mdb = require('../matchDB/modules/methods');
-const fs = require('fs/promises')
 
 /* GET users listing. */
 router.post('/', function(req, res, next) {
+    console.log("POST:")
     console.log(req.body);
     const context = req.body;
     // Check Context
@@ -16,7 +16,7 @@ router.post('/', function(req, res, next) {
         })
     }
     // Operation
-    addData(context).then(()=>console.log('An data has been added'))
+    addData(context).then(()=>console.log('An addData request has been handled'))
 
     // Function
     async function addData(context) {
@@ -27,9 +27,18 @@ router.post('/', function(req, res, next) {
                 msg:`added an data in ${context.form}`
             })
         }catch(e){
+            console.log(e.message)
+            switch (e.message){
+                case "Error: 423":
+                    return res.send({
+                        status:423,
+                        msg:'fail to create form--- _id has been used'
+                    })
+                    break;
+            }
             return res.send({
                 status:422,
-                msg:`fail to create form---${e}`
+                msg:`fail to create form---${e.message}`
             })
         }
     }

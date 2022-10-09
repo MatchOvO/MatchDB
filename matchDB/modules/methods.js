@@ -58,7 +58,6 @@ class matchDB{
                 if (context.formName === '') return  {result:false,msg:'[MatchDB]:Property {formName} can not be empty'};
                 if(!context.hasOwnProperty('format') || !Array.isArray(context.format)) return {result:false,msg:'[MatchDB]:Property {format} is needed and it is needed as an Array'};
                 if (context.format.length === 0) return  {result:false,msg:'[MatchDB]:Property {format} can not be an empty Array'};
-                if (context.format.includes('mdbID')) return  {result:false,msg:'[MatchDB]:Property {format} Array can not includes an value called {mdbID}'};
                 break;
             case 'addData':
                 if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
@@ -67,6 +66,10 @@ class matchDB{
                 if (context.form === '') return  {result:false,msg:'[MatchDB]:Property {form} can not be empty'};
                 if(!context.hasOwnProperty('data')) return {result:false,msg:'[MatchDB]:Property {data} is needed'};
                 if (!(context.data.constructor === Object)) return {result:false,msg:'[MatchDB]:Property {data} should be an Object'};
+                if ((context.data.hasOwnProperty("_id"))){
+                    if ((context.data._id.constructor !== String) && (context.data._id.constructor !== Number)) return {result:false,msg:'[MatchDB]:Data\'s Property {_id} should be an String or Number'};
+                }
+                break;
         }
         return {result}
     }
@@ -97,15 +100,19 @@ class matchDB{
             formInfo:{
                 formName:context.formName,
                 size:0,
-                format:['mdbID',...context.format]
+                format:[...new Set(['_id',...context.format])]
             },
-            data:[]
+            data:{}
         }
         return JSON.stringify(dataObj)
     }
 
     dataCompose(contextData,dataFormat){
-        contextData.mdbID = uuid()
+        if (!contextData.hasOwnProperty("_id")){
+            contextData._id = uuid()
+        }else if(!(contextData._id.constructor === String)){
+            contextData._id = contextData._id.toString()
+        }
         let newData = {}
         dataFormat.forEach((element)=>{
             if (contextData[element]){
@@ -157,6 +164,9 @@ class matchDB{
         formInfo.size = size
         return formInfo
     }
+    /**
+     *  Handler
+     * */
 
     createForm(context){
         const newForm = this.formNormalize(context)
@@ -192,8 +202,11 @@ class matchDB{
                 let {formInfo,data} = await readForm
                 const dataFormat = formInfo.format
                 const newData = dataCompose(contextData,dataFormat)
-                data.unshift(newData)
-                formInfo = updateFormInfo(formInfo,data.length)
+                if (data[newData._id]){
+                    throw new Error("423")
+                }
+                data[newData._id] = newData
+                formInfo = updateFormInfo(formInfo,Object.getOwnPropertyNames(data).length)
                 const newForm = {
                     formInfo,
                     data
