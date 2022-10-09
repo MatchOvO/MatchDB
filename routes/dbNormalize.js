@@ -5,13 +5,12 @@ const fs = require('fs/promises')
 
 /* GET users listing. */
 router.post('/', function(req, res, next) {
-    console.log('接收的请求体为：',req.body);
     const context = req.body;
     // check context
     if (!(mdb.contextCheck('dbNormalize',context).result)){
         return res.send({
             status:411,
-            msg:'[ERROR]: post or context format error,please use JSON to post or use the correct context format'
+            msg:'[MatchDB]: post or context format error,please use JSON to post or use the correct context format'
         })
     }
     // operation

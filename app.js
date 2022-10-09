@@ -9,7 +9,8 @@ const usersRouter = require('./routes/users');
 const dbNormalize = require('./routes/dbNormalize');
 const rootNormalize = require('./routes/rootNormalize');
 const createForm = require('./routes/createForm');
-const addData = require('./routes/addData')
+const addData = require('./routes/addData');
+const getForm = require('./routes/getForm')
 
 var app = express();
 
@@ -19,7 +20,7 @@ app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -29,6 +30,7 @@ app.use('/rootNormalize',rootNormalize);
 app.use('/dbNormalize',dbNormalize);
 app.use('/createForm',createForm);
 app.use('/addData',addData);
+app.use('/getForm',getForm);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

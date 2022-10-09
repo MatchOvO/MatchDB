@@ -6,6 +6,21 @@ class matchDB{
         /**
          *  There's some Async function that need to return a value
          * */
+        this.readRootConfig = function () {
+            return new Promise((resolve, reject) => {
+                let rootConfig
+                async function handler(){
+                    try{
+                        rootConfig = JSON.parse(await fs.readFile(`./matchDB/matchDB_root/root_cnf.json`,'utf8'))
+                        resolve(rootConfig)
+                    }catch (e) {
+                        reject(e)
+                    }
+                }
+                handler().then()
+            })
+        }
+
         this.readDatabaseConfig = function (db) {
             return new Promise((resolve, reject)=>{
                 let dbConfig
@@ -46,23 +61,29 @@ class matchDB{
      */
     contextCheck(operation,context){
         let result = true
+        if (context.constructor !== Object) return `[MatchDB]: post or context format error,please use JSON to post or use the correct context format`
         switch (operation){
             case 'dbNormalize':
                 if(!context.hasOwnProperty('dbName')) return {result:false,msg:'[MatchDB]:Property {dbName} is needed'};
+                if (context.dbName.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {dbName} should be an String'};
                 if (context.dbName === '') return  {result:false,msg:'[MatchDB]:Property {dbName} can not be empty'};
                 break;
             case 'createForm':
                 if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
+                if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
                 if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {db} can not be empty'};
                 if(!context.hasOwnProperty('formName')) return {result:false,msg:'[MatchDB]:Property {formName} is needed'};
+                if (context.formName.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {formName} should be an String'};
                 if (context.formName === '') return  {result:false,msg:'[MatchDB]:Property {formName} can not be empty'};
                 if(!context.hasOwnProperty('format') || !Array.isArray(context.format)) return {result:false,msg:'[MatchDB]:Property {format} is needed and it is needed as an Array'};
                 if (context.format.length === 0) return  {result:false,msg:'[MatchDB]:Property {format} can not be an empty Array'};
                 break;
             case 'addData':
                 if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
+                if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
                 if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {"db"} can not be empty'};
                 if(!context.hasOwnProperty('form')) return {result:false,msg:'[MatchDB]:Property {form} is needed'};
+                if (context.form.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {form} should be an String'};
                 if (context.form === '') return  {result:false,msg:'[MatchDB]:Property {form} can not be empty'};
                 if(!context.hasOwnProperty('data')) return {result:false,msg:'[MatchDB]:Property {data} is needed'};
                 if (!(context.data.constructor === Object)) return {result:false,msg:'[MatchDB]:Property {data} should be an Object'};
@@ -70,6 +91,13 @@ class matchDB{
                     if ((context.data._id.constructor !== String) && (context.data._id.constructor !== Number)) return {result:false,msg:'[MatchDB]:Data\'s Property {_id} should be an String or Number'};
                 }
                 break;
+            case 'getForm':
+                if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
+                if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
+                if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {"db"} can not be empty'};
+                if(!context.hasOwnProperty('form')) return {result:false,msg:'[MatchDB]:Property {form} is needed'};
+                if (context.form.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {form} should be an String'};
+                if (context.form === '') return  {result:false,msg:'[MatchDB]:Property {form} can not be empty'};
         }
         return {result}
     }
@@ -203,7 +231,7 @@ class matchDB{
                 const dataFormat = formInfo.format
                 const newData = dataCompose(contextData,dataFormat)
                 if (data[newData._id]){
-                    throw new Error("423")
+                    throw new Error("433")
                 }
                 data[newData._id] = newData
                 formInfo = updateFormInfo(formInfo,Object.getOwnPropertyNames(data).length)
@@ -213,10 +241,11 @@ class matchDB{
                 }
                 await fs.writeFile(`./matchDB/matchDB_root/${db}/${form}`,JSON.stringify(newForm))
             }catch (e) {
-                throw new Error(e)
+                throw new Error(e.message)
             }
         }
         return handler()
     }
+
 }
 module.exports = new matchDB()
