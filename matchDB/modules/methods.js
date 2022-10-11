@@ -1,4 +1,5 @@
 const fs = require('fs/promises')
+const fsN = require('fs')
 const uuid = require('uuid')
 class matchDB{
     constructor(config) {
@@ -50,6 +51,10 @@ class matchDB{
                 handler().then()
             })
         }
+
+        this.readTableSync = function (db,table) {
+            return JSON.parse(fsN.readFileSync(`./matchDB/matchDB_root/${db}/${table}`,'utf8'))
+        }
     }
 
 /**
@@ -98,6 +103,17 @@ class matchDB{
                 if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
                 if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
                 if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
+                break;
+            case 'deleteData':
+                if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
+                if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
+                if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {"db"} can not be empty'};
+                if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
+                if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
+                if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
+                if (!context.hasOwnProperty('_id')) return {result:false,msg:'[MatchDB]:Property {_id} is needed'};
+                if (context._id.constructor !== String && context._id.constructor !== Array) return {result:false,msg:'[MatchDB]:Property {_id} should be an String or an Array'};
+                break;
         }
         return {result}
     }
@@ -124,14 +140,19 @@ class matchDB{
     }
 
     tableNormalize(context) {
+        const formatArr = [...new Set(['_id',...context.format])]
         const dataObj = {
             tableInfo:{
                 tableName:context.tableName,
                 size:0,
-                format:[...new Set(['_id',...context.format])]
+                format:formatArr
             },
-            data:{}
+            data:{},
+            index:{}
         }
+        formatArr.forEach(item=>{
+            dataObj.index[item] = {}
+        })
         return JSON.stringify(dataObj)
     }
 
@@ -188,9 +209,34 @@ class matchDB{
         return handler()
     }
 
-    updateTableInfo(tableInfo, size){
-        tableInfo.size = size
-        return tableInfo
+    updateTableInfo(tableInfo, data){
+        // 需要旧的tableInfo 新的data
+        tableInfo['size'] = Object.getOwnPropertyNames(data).length
+    }
+
+    updateTableIndex(tableInfo,data,index){
+        // 需要新的tableInfo 新的data 旧的index
+        const {format} = tableInfo
+        format.forEach(item=>{
+            index[item] = {}
+        })
+        for (const key in data) {
+            if (Object.hasOwnProperty.call(data, key)) {
+                const element = data[key];
+                format.forEach(item=>{
+                    const valueObj = index[item]
+                    let value = element[item]
+                    if (value.constructor !== String) value = String(value)
+                    if (!valueObj[value]) valueObj[value] = [];
+                    valueObj[value].unshift(element._id)
+                    // 索引数组去重
+                    const arr = valueObj[value]
+                    const set = new Set(arr)
+                    valueObj[value] = [...set]
+                })
+            }
+        }
+
     }
     /**
      *  Handler
@@ -225,19 +271,22 @@ class matchDB{
         const readTable = this.readTable(db,table)
         const dataCompose = this.dataCompose
         const updateTableInfo = this.updateTableInfo
+        const updateTableIndex = this.updateTableIndex
         async function handler(){
             try {
-                let {tableInfo,data} = await readTable
+                let {tableInfo,data,index} = await readTable
                 const dataFormat = tableInfo.format
                 const newData = dataCompose(contextData,dataFormat)
                 if (data[newData._id]){
                     throw new Error("433")
                 }
                 data[newData._id] = newData
-                tableInfo = updateTableInfo(tableInfo,Object.getOwnPropertyNames(data).length)
+                updateTableInfo(tableInfo,data)
+                updateTableIndex(tableInfo,data,index)
                 const newTable = {
                     tableInfo,
-                    data
+                    data,
+                    index
                 }
                 await fs.writeFile(`./matchDB/matchDB_root/${db}/${table}`,JSON.stringify(newTable))
             }catch (e) {
@@ -245,6 +294,34 @@ class matchDB{
             }
         }
         return handler()
+    }
+
+    deleteData(context){
+        try{
+            const {db,table,_id} = context
+            const idArr = _id.constructor === Array ? _id : [_id]
+            const tableObj = this.readTableSync(db,table)
+            const {tableInfo,data,index} = tableObj
+            const deletedArr = []
+            idArr.forEach(id=>{
+                if (data[id]){
+                    deletedArr.push(data[id])
+                    delete data[id]
+                }
+            })
+            this.updateTableInfo(tableInfo,data)
+            this.updateTableIndex(tableInfo,data,index)
+            const newTable = {
+                tableInfo,
+                data,
+                index
+            }
+            fsN.writeFileSync(`./matchDB/matchDB_root/${db}/${table}`,JSON.stringify(newTable))
+            return deletedArr
+        }catch (e) {
+            return []
+            throw new Error(e.message)
+        }
     }
 
 }

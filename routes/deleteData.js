@@ -3,59 +3,58 @@ var router = express.Router();
 const mdb = require('../matchDB/modules/methods');
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-    console.log("GET:")
-    console.log(req.query);
+router.post('/', function(req, res, next) {
+    console.log("POST:")
     console.log(req.body);
-    const context = (Object.keys(req.query).length !== 0) ? req.query : req.body;
+    const context = req.body;
     // Check Context
-    const checkResult = mdb.contextCheck('getTable',context)
+    const checkResult = mdb.contextCheck('deleteData',context)
     if (!checkResult.result){
-        res.status(400)
         return res.send({
-            status:441,
+            status:431,
             msg:checkResult.msg
         })
     }
     // Operation
-    getTable(context).then(()=>console.log('An getTable request has been handled'))
+    deleteData(context).then(()=>console.log('An deleteData request has been handled'))
 
     // Function
-    async function getTable(context) {
+    async function deleteData(context) {
         try{
             const rootConfig = await mdb.readRootConfig()
             if (!(rootConfig.database.includes(context.db))){
-                throw new Error("443")
+                throw new Error('434')
             }
             const dbConfig = await mdb.readDatabaseConfig(context.db)
             if (!(dbConfig.table.includes(context.table))){
-                throw new Error("444")
+                throw new Error('435')
             }
-            const tableObj = await mdb.readTable(context.db,context.table)
-            return res.send(tableObj)
+            const deletedArr = mdb.deleteData(context)
+            return res.send({
+                deletedArr
+            })
         }catch(e){
             console.log(e.message)
             switch (e.message){
-                case "443":
+                case "434":
                     res.status(400)
                     return res.send({
-                        status:443,
-                        msg:`database ${context.db} is not existed`
+                        status:434,
+                        msg:`[MatchDB]:database ${context.db} is not existed`
                     })
                     break;
-                case "444":
+                case "435":
                     res.status(400)
                     return res.send({
-                        status:444,
-                        msg:`table ${context.table} is not existed`
+                        status:435,
+                        msg:`[MatchDB]:table ${context.table} is not existed`
                     })
                     break;
             }
-
-            res.status(500)
+            res.status(400)
             return res.send({
-                status:442,
-                msg:`fail to get table---${e.message}`
+                status:452,
+                msg:`fail delete an data---${e.message}`
             })
         }
     }

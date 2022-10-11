@@ -1,18 +1,19 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
-const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const dbNormalize = require('./routes/dbNormalize');
 const rootNormalize = require('./routes/rootNormalize');
 const createTable = require('./routes/createTable');
 const addData = require('./routes/addData');
-const getTable = require('./routes/getTable')
+const getTable = require('./routes/getTable');
+const getTableData = require('./routes/getTableData');
+const deleteData = require('./routes/deleteData')
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,13 +25,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/workbench', indexRouter);
 app.use('/users', usersRouter);
 app.use('/rootNormalize',rootNormalize);
 app.use('/dbNormalize',dbNormalize);
 app.use('/createTable',createTable);
 app.use('/addData',addData);
 app.use('/getTable',getTable);
+app.use('/getTableData',getTableData);
+app.use('/deleteData',deleteData);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

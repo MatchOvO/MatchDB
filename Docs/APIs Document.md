@@ -28,7 +28,7 @@ axios.post('http://localhost:3020/rootNormalize')
 ```
 ###  `/dbNormalize`
 * 请求类型: `POST`
-* 请求体类型: `JSON | urlencoded`
+* 请求体类型: `JSON | Urlencoded`
 * 请求参数: 
   * dbName: `String`
     * 初始化数据库的名字
@@ -51,7 +51,7 @@ axios.post('http://localhost:3020/dbNormalize',{
 ```
 ###  `/createTable`
 * 请求类型: `POST`
-* 请求体类型: `JSON ｜ Object`
+* 请求体类型: `JSON ｜ Urlencoded`
 * 请求参数:
     * db: `String`
       * 需要操作的数据库的名字
@@ -80,8 +80,8 @@ axios.post('http://localhost:3020/dbNormalize',{
 ```
 
 ###  `/addData`
-* 请求类型: `POST`
-* 请求体类型: `JSON ｜ Object`
+* 请求类型: `GET`
+* 请求体类型: `URL | JSON ｜ Urlencoded`
 * 请求参数:
     * db: `String`
         * 需要操作的数据库的名字

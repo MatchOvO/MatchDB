@@ -18,10 +18,10 @@ router.get('/', function(req, res, next) {
         })
     }
     // Operation
-    getTable(context).then(()=>console.log('An getTable request has been handled'))
+    getTableData(context).then(()=>console.log('An getTable request has been handled'))
 
     // Function
-    async function getTable(context) {
+    async function getTableData(context) {
         try{
             const rootConfig = await mdb.readRootConfig()
             if (!(rootConfig.database.includes(context.db))){
@@ -32,7 +32,7 @@ router.get('/', function(req, res, next) {
                 throw new Error("444")
             }
             const tableObj = await mdb.readTable(context.db,context.table)
-            return res.send(tableObj)
+            return res.send(tableObj.data)
         }catch(e){
             console.log(e.message)
             switch (e.message){
