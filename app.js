@@ -8,9 +8,9 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const dbNormalize = require('./routes/dbNormalize');
 const rootNormalize = require('./routes/rootNormalize');
-const createForm = require('./routes/createForm');
+const createTable = require('./routes/createTable');
 const addData = require('./routes/addData');
-const getForm = require('./routes/getForm')
+const getTable = require('./routes/getTable')
 
 var app = express();
 
@@ -28,9 +28,9 @@ app.use('/workbench', indexRouter);
 app.use('/users', usersRouter);
 app.use('/rootNormalize',rootNormalize);
 app.use('/dbNormalize',dbNormalize);
-app.use('/createForm',createForm);
+app.use('/createTable',createTable);
 app.use('/addData',addData);
-app.use('/getForm',getForm);
+app.use('/getTable',getTable);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

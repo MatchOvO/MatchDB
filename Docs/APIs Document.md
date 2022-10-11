@@ -22,7 +22,7 @@ axios.post('http://localhost:3020/rootNormalize')
 }
 //失败返回
 {
-    status:402,
+    status:500,
     msg:"fail to normalize MatchDB's root"    
 }
 ```
@@ -49,13 +49,13 @@ axios.post('http://localhost:3020/dbNormalize',{
     msg:"[MatchDB]: post or context format error,please use JSON to post or use the correct context format"    
 }
 ```
-###  `/createForm`
+###  `/createTable`
 * 请求类型: `POST`
 * 请求体类型: `JSON ｜ Object`
 * 请求参数:
     * db: `String`
       * 需要操作的数据库的名字
-    * formName: `String`
+    * tableName: `String`
       * 需要创建的表格名称
     * format: `Array`
       * 创建的表格中需要包含的列名（属性）
@@ -63,14 +63,14 @@ axios.post('http://localhost:3020/dbNormalize',{
 //请求试例
 axios.post('http://localhost:3020/dbNormalize',{
     db:"db_01",
-    formName:"users",
+    tableName:"users",
     format:["name","gender","age"]
 })
 
 //成功返回
 {
     status:200,
-    msg:"creat form:{formName}"    
+    msg:"creat table:{tableName}"    
 }
 //失败返回--请求体格式错误示例
 {
@@ -85,7 +85,7 @@ axios.post('http://localhost:3020/dbNormalize',{
 * 请求参数:
     * db: `String`
         * 需要操作的数据库的名字
-    * form: `String`
+    * table: `String`
         * 需要操作的表格名称
     * data: `Object`
         * 插入的数据对象，以键值对的形式
@@ -94,20 +94,24 @@ axios.post('http://localhost:3020/dbNormalize',{
         * "_id"在同一个表格中必需唯一，否则将无法添加数据，通过"_id"查找数据在MatchDB中会更加高效，因此建议MatchDB开发者建议您使用用户名等唯一标识来作为ID值
 ```
 //请求试例
-axios.post('http://localhost:3020/dbNormalize',{
+axios.post('http://localhost:3020/dbData',{
     db:"db_01",
-    formName:"users",
-    format:["name","gender","age"]
+    table:"users",
+    data:{
+        "name":"火柴",
+        "age":19,
+        "gender":"男"
+    }
 })
 
 //成功返回
 {
     status:200,
-    msg:"added an data in {form}"    
+    msg:"added an data in {table}"    
 }
 //失败返回--id已被占用示例
 {
     status:431,
-    msg:"[MatchDB]:fail to create form--- _id has been used"    
+    msg:"[MatchDB]:fail to create table--- _id has been used"    
 }
 ```

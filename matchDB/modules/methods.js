@@ -36,13 +36,13 @@ class matchDB{
             })
         }
 
-        this.readForm = function (db,form) {
+        this.readTable = function (db, table) {
             return new Promise((resolve,reject)=>{
-                let formObj
+                let tableObj
                 async function handler(){
                     try{
-                        formObj = JSON.parse(await fs.readFile(`./matchDB/matchDB_root/${db}/${form}`,'utf8'))
-                        resolve(formObj)
+                        tableObj = JSON.parse(await fs.readFile(`./matchDB/matchDB_root/${db}/${table}`,'utf8'))
+                        resolve(tableObj)
                     }catch (e) {
                         reject(e)
                     }
@@ -68,13 +68,13 @@ class matchDB{
                 if (context.dbName.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {dbName} should be an String'};
                 if (context.dbName === '') return  {result:false,msg:'[MatchDB]:Property {dbName} can not be empty'};
                 break;
-            case 'createForm':
+            case 'createTable':
                 if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
                 if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
                 if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {db} can not be empty'};
-                if(!context.hasOwnProperty('formName')) return {result:false,msg:'[MatchDB]:Property {formName} is needed'};
-                if (context.formName.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {formName} should be an String'};
-                if (context.formName === '') return  {result:false,msg:'[MatchDB]:Property {formName} can not be empty'};
+                if(!context.hasOwnProperty('tableName')) return {result:false,msg:'[MatchDB]:Property {tableName} is needed'};
+                if (context.tableName.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {formName} should be an String'};
+                if (context.tableName === '') return  {result:false,msg:'[MatchDB]:Property {formName} can not be empty'};
                 if(!context.hasOwnProperty('format') || !Array.isArray(context.format)) return {result:false,msg:'[MatchDB]:Property {format} is needed and it is needed as an Array'};
                 if (context.format.length === 0) return  {result:false,msg:'[MatchDB]:Property {format} can not be an empty Array'};
                 break;
@@ -82,22 +82,22 @@ class matchDB{
                 if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
                 if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
                 if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {"db"} can not be empty'};
-                if(!context.hasOwnProperty('form')) return {result:false,msg:'[MatchDB]:Property {form} is needed'};
-                if (context.form.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {form} should be an String'};
-                if (context.form === '') return  {result:false,msg:'[MatchDB]:Property {form} can not be empty'};
+                if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
+                if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
+                if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
                 if(!context.hasOwnProperty('data')) return {result:false,msg:'[MatchDB]:Property {data} is needed'};
                 if (!(context.data.constructor === Object)) return {result:false,msg:'[MatchDB]:Property {data} should be an Object'};
                 if ((context.data.hasOwnProperty("_id"))){
                     if ((context.data._id.constructor !== String) && (context.data._id.constructor !== Number)) return {result:false,msg:'[MatchDB]:Data\'s Property {_id} should be an String or Number'};
                 }
                 break;
-            case 'getForm':
+            case 'getTable':
                 if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
                 if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
                 if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {"db"} can not be empty'};
-                if(!context.hasOwnProperty('form')) return {result:false,msg:'[MatchDB]:Property {form} is needed'};
-                if (context.form.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {form} should be an String'};
-                if (context.form === '') return  {result:false,msg:'[MatchDB]:Property {form} can not be empty'};
+                if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
+                if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
+                if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
         }
         return {result}
     }
@@ -108,7 +108,7 @@ class matchDB{
                 dbName:context.dbName,
                 size:0
             },
-            form:[]
+            table:[]
         }
         return JSON.stringify(configObj)
     }
@@ -123,10 +123,10 @@ class matchDB{
         return JSON.stringify(configObj)
     }
 
-    formNormalize(context) {
+    tableNormalize(context) {
         const dataObj = {
-            formInfo:{
-                formName:context.formName,
+            tableInfo:{
+                tableName:context.tableName,
                 size:0,
                 format:[...new Set(['_id',...context.format])]
             },
@@ -179,7 +179,7 @@ class matchDB{
                 dbConfig.dbInfo.size = oldList.length - 1
                 const newList = oldList.filter(e=>e !== 'db_cnf.json')
                 console.log('new form list'+newList)
-                dbConfig.form = newList
+                dbConfig.table = newList
                 await fs.writeFile(`./matchDB/matchDB_root/${db}/db_cnf.json`,JSON.stringify(dbConfig))
             }catch (e) {
                 throw new Error(e.message)
@@ -188,29 +188,29 @@ class matchDB{
         return handler()
     }
 
-    updateFormInfo(formInfo,size){
-        formInfo.size = size
-        return formInfo
+    updateTableInfo(tableInfo, size){
+        tableInfo.size = size
+        return tableInfo
     }
     /**
      *  Handler
      * */
 
-    createForm(context){
-        const newForm = this.formNormalize(context)
+    createTable(context){
+        const newTable = this.tableNormalize(context)
         const updateDatabaseConfig = this.updateDatabaseConfig
         const readDatabaseConfig = this.readDatabaseConfig(context.db)
         async function handler(){
             try {
-                const path = `./matchDB/matchDB_root/${context.db}/${context.formName}`
+                const path = `./matchDB/matchDB_root/${context.db}/${context.tableName}`
                 const dbConfig = await readDatabaseConfig
-                if (!(dbConfig.form.includes(context.formName))){
+                if (!(dbConfig.table.includes(context.tableName))){
                     await Promise.all([
-                        fs.writeFile(path,newForm),
+                        fs.writeFile(path,newTable),
                         updateDatabaseConfig(context.db)
                     ])
                 }else{
-                    throw new Error(`[MatchDB]: ${context.formName} has been existing`)
+                    throw new Error(`423`)
                 }
             }catch (e) {
                 throw new Error(e.message)
@@ -220,26 +220,26 @@ class matchDB{
     }
 
     addData(context){
-        const {db,form} = context
+        const {db,table} = context
         const contextData = context.data
-        const readForm = this.readForm(db,form)
+        const readTable = this.readTable(db,table)
         const dataCompose = this.dataCompose
-        const updateFormInfo = this.updateFormInfo
+        const updateTableInfo = this.updateTableInfo
         async function handler(){
             try {
-                let {formInfo,data} = await readForm
-                const dataFormat = formInfo.format
+                let {tableInfo,data} = await readTable
+                const dataFormat = tableInfo.format
                 const newData = dataCompose(contextData,dataFormat)
                 if (data[newData._id]){
                     throw new Error("433")
                 }
                 data[newData._id] = newData
-                formInfo = updateFormInfo(formInfo,Object.getOwnPropertyNames(data).length)
-                const newForm = {
-                    formInfo,
+                tableInfo = updateTableInfo(tableInfo,Object.getOwnPropertyNames(data).length)
+                const newTable = {
+                    tableInfo,
                     data
                 }
-                await fs.writeFile(`./matchDB/matchDB_root/${db}/${form}`,JSON.stringify(newForm))
+                await fs.writeFile(`./matchDB/matchDB_root/${db}/${table}`,JSON.stringify(newTable))
             }catch (e) {
                 throw new Error(e.message)
             }

@@ -8,6 +8,7 @@ router.post('/', function(req, res, next) {
     const context = req.body;
     // check context
     if (!(mdb.contextCheck('dbNormalize',context).result)){
+        res.status(400)
         return res.send({
             status:411,
             msg:'[MatchDB]: post or context format error,please use JSON to post or use the correct context format'
@@ -31,8 +32,9 @@ router.post('/', function(req, res, next) {
                 msg:`normalize database:${context.dbName}`
             })
         }catch(e){
+            res.status(500)
             return res.send({
-                status:412,
+                status:500,
                 msg:`fail to normalize database:${context.dbName}---${e}`
             })
         }

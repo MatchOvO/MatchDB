@@ -26,36 +26,40 @@ router.post('/', function(req, res, next) {
                 throw new Error('434')
             }
             const dbConfig = await mdb.readDatabaseConfig(context.db)
-            if (!(dbConfig.form.includes(context.form))){
+            if (!(dbConfig.table.includes(context.table))){
                 throw new Error('435')
             }
             await mdb.addData(context)
             return res.send({
                 status:200,
-                msg:`added an data in ${context.form}`
+                msg:`added an data in ${context.table}`
             })
         }catch(e){
             console.log(e.message)
             switch (e.message){
                 case "433":
+                    res.status(400)
                     return res.send({
                         status:433,
                         msg:'[MatchDB]:fail to add an data--- _id has been used'
                     })
                     break;
                 case "434":
+                    res.status(400)
                     return res.send({
                         status:434,
                         msg:`[MatchDB]:database ${context.db} is not existed`
                     })
                     break;
                 case "435":
+                    res.status(400)
                     return res.send({
                         status:435,
-                        msg:`[MatchDB]:form ${context.form} is not existed`
+                        msg:`[MatchDB]:table ${context.table} is not existed`
                     })
                     break;
             }
+            res.status(400)
             return res.send({
                 status:432,
                 msg:`fail add an data---${e.message}`

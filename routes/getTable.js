@@ -8,47 +8,47 @@ router.post('/', function(req, res, next) {
     console.log(req.body);
     const context = req.body;
     // Check Context
-    const checkResult = mdb.contextCheck('getForm',context)
+    const checkResult = mdb.contextCheck('getTable',context)
     if (!checkResult.result){
+        res.status(400)
         return res.send({
             status:431,
             msg:checkResult.msg
         })
     }
     // Operation
-    getForm(context).then(()=>console.log('An getForm request has been handled'))
+    getTable(context).then(()=>console.log('An getTable request has been handled'))
 
     // Function
-    async function getForm(context) {
+    async function getTable(context) {
         try{
             const rootConfig = await mdb.readRootConfig()
             if (!(rootConfig.database.includes(context.db))){
+                res.status(400)
                 return res.send({
                     status:443,
                     msg:`database ${context.db} is not existed`
                 })
             }
             const dbConfig = await mdb.readDatabaseConfig(context.db)
-            if (!(dbConfig.form.includes(context.form))){
+            if (!(dbConfig.table.includes(context.table))){
+                res.status(400)
                 return res.send({
                     status:444,
-                    msg:`form ${context.form} is not existed`
+                    msg:`table ${context.table} is not existed`
                 })
             }
-            const formObj = await mdb.readForm(context.db,context.form)
-            return res.send({
-                status:200,
-                data:formObj,
-                msg:`success`
-            })
+            const tableObj = await mdb.readTable(context.db,context.table)
+            return res.send(tableObj)
         }catch(e){
             console.log(e.message)
             switch (e.message){
 
             }
+            res.status(500)
             return res.send({
                 status:442,
-                msg:`fail to create form---${e.message}`
+                msg:`fail to get table---${e.message}`
             })
         }
     }
