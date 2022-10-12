@@ -112,7 +112,7 @@ class matchDB{
                 if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
                 if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
                 if (!context.hasOwnProperty('_id')) return {result:false,msg:'[MatchDB]:Property {_id} is needed'};
-                if (context._id.constructor !== String && context._id.constructor !== Array) return {result:false,msg:'[MatchDB]:Property {_id} should be an String or an Array'};
+                if (context._id.constructor !== String && context._id.constructor !== Array && context._id.constructor !== Number) return {result:false,msg:'[MatchDB]:Property {_id} should be an String or an Array'};
                 break;
         }
         return {result}
@@ -300,6 +300,10 @@ class matchDB{
         try{
             const {db,table,_id} = context
             const idArr = _id.constructor === Array ? _id : [_id]
+            // 将id转为字符串
+            idArr.forEach((item,index)=>{
+                if (item.constructor !== String) idArr[index] = String(item)
+            })
             const tableObj = this.readTableSync(db,table)
             const {tableInfo,data,index} = tableObj
             const deletedArr = []

@@ -3,7 +3,9 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const fs = require('fs')
 
+const config = fs.readFileSync('./config.json','utf8')
 const usersRouter = require('./routes/users');
 const dbNormalize = require('./routes/dbNormalize');
 const rootNormalize = require('./routes/rootNormalize');
@@ -18,6 +20,7 @@ const app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+app.set('config',config)
 
 app.use(logger('dev'));
 app.use(express.json());

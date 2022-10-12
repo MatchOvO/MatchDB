@@ -1,0 +1,9 @@
+{
+  "users": [
+    {
+      "username": "root",
+      "password": "admin",
+      "flag": "a-r-u-d"
+    }
+  ]
+}

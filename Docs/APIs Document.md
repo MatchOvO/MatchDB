@@ -58,7 +58,8 @@ axios.post('http://localhost:3020/dbNormalize',{
     * tableName: `String`
       * 需要创建的表格名称
     * format: `Array`
-      * 创建的表格中需要包含的列名（属性）
+      * 创建的表格中需要包含的字段（属性）
+      * 加入的数据包含且只能包含格式（format）中的字段
 ```
 //请求试例
 axios.post('http://localhost:3020/dbNormalize',{
@@ -80,8 +81,8 @@ axios.post('http://localhost:3020/dbNormalize',{
 ```
 
 ###  `/addData`
-* 请求类型: `GET`
-* 请求体类型: `URL | JSON ｜ Urlencoded`
+* 请求类型: `POST`
+* 请求体类型: `JSON ｜ Urlencoded`
 * 请求参数:
     * db: `String`
         * 需要操作的数据库的名字
@@ -90,8 +91,10 @@ axios.post('http://localhost:3020/dbNormalize',{
     * data: `Object`
         * 插入的数据对象，以键值对的形式
         * 当请求插入的数据对象中没有包含表格中的列名（属性），则会被赋予空字符串
+        * 当请求插入的数据对象中具有表格中没有的字段的数据，该字段的数据将会被忽略
         * 当请求插入的数据不包含 "_id"，则MatchDB将会为你的数据自动加入一个随机生成的唯一id
-        * "_id"在同一个表格中必需唯一，否则将无法添加数据，通过"_id"查找数据在MatchDB中会更加高效，因此建议MatchDB开发者建议您使用用户名等唯一标识来作为ID值
+        * "_id"在同一个表格中必需唯一，否则将无法添加数据，通过"_id"查找数据在MatchDB中会更加高效，即使MatchDB为每一个数据都建立了索引，但是MatchDB作者仍然建议您使用用户名等唯一标识来作为ID值
+            并且这也也可以保证数据的唯一性
 ```
 //请求试例
 axios.post('http://localhost:3020/dbData',{
@@ -113,5 +116,127 @@ axios.post('http://localhost:3020/dbData',{
 {
     status:431,
     msg:"[MatchDB]:fail to create table--- _id has been used"    
+}
+```
+###  `/deleteData`
+* 请求类型: `POST`
+* 请求体类型: `JSON ｜ Urlencoded`
+* 请求参数:
+    * db: `String`
+        * 需要操作的数据库的名字
+    * table: `String`
+        * 需要操作的表格名称
+    * _id: `Array | String | Number`
+      * 需要删除的id
+      * 如果作为一个数组传递参数，里面包含有对象等其它非法元素，MachDB不会对此行为进行检测，也不会对此进行忽略，将会对元素进行字符串化并正常进行删除操作（如果匹配有正确的_id的话）
+        * Number ==> String
+        * Object ==> "[object,object]" (某种情况下Array也会转为此形式)
+        * Array ==> "num1,num2,num3...." (当Array的元素全为数字时)
+
+###  `/getTable` （实际生产中不建议使用）
+* 请求类型: `GET`
+* 请求体类型: `URL | JSON ｜ Urlencoded`
+* 请求参数:
+    * db: `String`
+        * 需要操作的数据库的名字
+    * table: `String`
+        * 需要查询的表格名称
+* 返回类型: `JSON`
+* 返回参数: 
+  * tableInfo: `Object`
+    * 包含表格的基本信息
+  * data: `Object`
+    * 表格中的所有数据
+  * index: `Object`
+    * 表格中每个列（column）的id索引
+#### 返回数据示例（JSON）
+```json
+{
+    "tableInfo": {
+        "tableName": "users",
+        "size": 2,
+        "format": [
+            "_id",
+            "name",
+            "age",
+            "address"
+        ]
+    },
+    "data": {
+        "818ca99e-71a0-405d-b09e-eb560ab79fc4": {
+            "_id": "818ca99e-71a0-405d-b09e-eb560ab79fc4",
+            "name": "火柴",
+            "age": 19,
+            "address": "吉林大学"
+        },
+        "bc293093-40f0-45f8-8232-94ea597a4cbd": {
+            "_id": "bc293093-40f0-45f8-8232-94ea597a4cbd",
+            "name": "桃子",
+            "age": 19,
+            "address": "广州大学"
+        }
+    },
+    "index": {
+        "_id": {
+            "818ca99e-71a0-405d-b09e-eb560ab79fc4": [
+                "818ca99e-71a0-405d-b09e-eb560ab79fc4"
+            ],
+            "bc293093-40f0-45f8-8232-94ea597a4cbd": [
+                "bc293093-40f0-45f8-8232-94ea597a4cbd"
+            ]
+        },
+        "name": {
+            "火柴": [
+                "818ca99e-71a0-405d-b09e-eb560ab79fc4"
+            ],
+            "桃子": [
+                "bc293093-40f0-45f8-8232-94ea597a4cbd"
+            ]
+        },
+        "age": {
+            "19": [
+                "bc293093-40f0-45f8-8232-94ea597a4cbd",
+                "818ca99e-71a0-405d-b09e-eb560ab79fc4"
+            ]
+        },
+        "address": {
+            "吉林大学": [
+                "818ca99e-71a0-405d-b09e-eb560ab79fc4"
+            ],
+            "广州大学": [
+                "bc293093-40f0-45f8-8232-94ea597a4cbd"
+            ]
+        }
+    }
+}
+```
+
+###  `/getTableData` （实际生产中不建议使用）
+* 请求类型: `GET`
+* 请求体类型: `URL | JSON ｜ Urlencoded`
+* 请求参数:
+    * db: `String`
+        * 需要操作的数据库的名字
+    * table: `String`
+        * 需要查询的表格名称
+* 返回类型: `JSON`
+* 返回参数:
+    * data: `Object`
+        * 表格中的所有数据
+#### 返回数据示例（JSON）
+```json
+{
+  "818ca99e-71a0-405d-b09e-eb560ab79fc4": {
+    "_id": "818ca99e-71a0-405d-b09e-eb560ab79fc4",
+    "name": "火柴",
+    "age": 19,
+    "address": "吉林大学"
+  },
+  "bc293093-40f0-45f8-8232-94ea597a4cbd": {
+    "_id": "bc293093-40f0-45f8-8232-94ea597a4cbd",
+    "name": "桃子",
+    "age": 19,
+    "address": "广州大学"
+  }
 }
 ```
