@@ -4,6 +4,11 @@
       "username": "root",
       "password": "admin",
       "flag": "a-r-u-d"
+    },
+    {
+      "username": "frontend",
+      "password": "12345",
+      "flag": "r"
     }
   ]
 }
