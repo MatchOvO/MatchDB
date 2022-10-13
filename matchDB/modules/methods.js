@@ -104,7 +104,7 @@ class matchDB{
                 if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
                 if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
                 break;
-            case 'deleteData':
+            case 'deleteData' || 'getData':
                 if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
                 if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
                 if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {"db"} can not be empty'};
@@ -113,6 +113,18 @@ class matchDB{
                 if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
                 if (!context.hasOwnProperty('_id')) return {result:false,msg:'[MatchDB]:Property {_id} is needed'};
                 if (context._id.constructor !== String && context._id.constructor !== Array && context._id.constructor !== Number) return {result:false,msg:'[MatchDB]:Property {_id} should be an String or an Array'};
+                break;
+            case 'updateData':
+                if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
+                if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
+                if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {"db"} can not be empty'};
+                if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
+                if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
+                if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
+                if (!context.hasOwnProperty('_id')) return {result:false,msg:'[MatchDB]:Property {_id} is needed'};
+                if (context._id.constructor !== String && context._id.constructor !== Array && context._id.constructor !== Number) return {result:false,msg:'[MatchDB]:Property {_id} should be an String or an Array'};
+                if (!context.hasOwnProperty('field')) return {result:false,msg:'[MatchDB]:Property {field} is needed'};
+                if (context.field.constructor !== Object) return {result:false,msg:'[MatchDB]:Property {field} should be an Object'}
                 break;
         }
         return {result}
@@ -236,8 +248,25 @@ class matchDB{
                 })
             }
         }
-
     }
+     idHandler(context){
+         const {_id} = context
+         const idArr = _id.constructor === Array ? _id : [_id]
+         // 将id转为字符串
+         idArr.forEach((item,index)=>{
+             if (item.constructor !== String) idArr[index] = String(item)
+         })
+         return idArr
+     }
+
+     updateTable(db,table,tableInfo,data,index){
+         const newTable = {
+             tableInfo,
+             data,
+             index
+         }
+         fsN.writeFileSync(`./matchDB/matchDB_root/${db}/${table}`,JSON.stringify(newTable))
+     }
     /**
      *  Handler
      * */
@@ -272,6 +301,7 @@ class matchDB{
         const dataCompose = this.dataCompose
         const updateTableInfo = this.updateTableInfo
         const updateTableIndex = this.updateTableIndex
+        const updateTable = this.updateTable
         async function handler(){
             try {
                 let {tableInfo,data,index} = await readTable
@@ -283,12 +313,7 @@ class matchDB{
                 data[newData._id] = newData
                 updateTableInfo(tableInfo,data)
                 updateTableIndex(tableInfo,data,index)
-                const newTable = {
-                    tableInfo,
-                    data,
-                    index
-                }
-                await fs.writeFile(`./matchDB/matchDB_root/${db}/${table}`,JSON.stringify(newTable))
+                updateTable(db,table,tableInfo,data,index)
             }catch (e) {
                 throw new Error(e.message)
             }
@@ -298,12 +323,8 @@ class matchDB{
 
     deleteData(context){
         try{
-            const {db,table,_id} = context
-            const idArr = _id.constructor === Array ? _id : [_id]
-            // 将id转为字符串
-            idArr.forEach((item,index)=>{
-                if (item.constructor !== String) idArr[index] = String(item)
-            })
+            const {db,table} = context
+            const idArr = this.idHandler(context)
             const tableObj = this.readTableSync(db,table)
             const {tableInfo,data,index} = tableObj
             const deletedArr = []
@@ -315,15 +336,48 @@ class matchDB{
             })
             this.updateTableInfo(tableInfo,data)
             this.updateTableIndex(tableInfo,data,index)
-            const newTable = {
-                tableInfo,
-                data,
-                index
-            }
-            fsN.writeFileSync(`./matchDB/matchDB_root/${db}/${table}`,JSON.stringify(newTable))
+            this.updateTable(db,table,tableInfo,data,index)
             return deletedArr
         }catch (e) {
             return []
+            throw new Error(e.message)
+        }
+    }
+
+    getData(context){
+        try{
+            const {db,table} = context
+            const idArr = this.idHandler(context)
+            const {data} = this.readTableSync(db,table)
+            const dataArr = []
+            idArr.forEach((id)=>{
+                if (data[id]) dataArr.push(data[id])
+            })
+            return dataArr
+        }catch (e) {
+            throw new Error(e.message)
+        }
+    }
+
+    updateData(context){
+        try{
+            const {db,table,field} = context
+            const idArr = this.idHandler(context)
+            const {tableInfo,data,index} = this.readTableSync(db,table)
+            const updateArr = []
+            idArr.forEach(id=>{
+                if (data[id]){
+                    for (const fieldKey in field) {
+                        if (data[id][fieldKey]) data[id][fieldKey] = field[fieldKey];
+                    }
+                    updateArr.push(data[id])
+                }
+            })
+            this.updateTableInfo(tableInfo,data)
+            this.updateTableIndex(tableInfo,data,index)
+            this.updateTable(db,table,tableInfo,data,index)
+            return updateArr
+        }catch (e) {
             throw new Error(e.message)
         }
     }

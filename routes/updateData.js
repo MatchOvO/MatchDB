@@ -8,7 +8,7 @@ router.post('/', function(req, res, next) {
     console.log(req.body);
     const context = req.body;
     // Check Context
-    const checkResult = mdb.contextCheck('addData',context)
+    const checkResult = mdb.contextCheck('updateData',context)
     if (!checkResult.result){
         res.status(400)
         return res.send({
@@ -17,10 +17,10 @@ router.post('/', function(req, res, next) {
         })
     }
     // Operation
-    addData(context).then(()=>console.log('An addData request has been handled'))
+    updateData(context).then(()=>console.log('An updateData request has been handled'))
 
     // Function
-    async function addData(context) {
+    async function updateData(context) {
         try{
             const rootConfig = await mdb.readRootConfig()
             if (!(rootConfig.database.includes(context.db))){
@@ -30,21 +30,13 @@ router.post('/', function(req, res, next) {
             if (!(dbConfig.table.includes(context.table))){
                 throw new Error('435')
             }
-            await mdb.addData(context)
-            return res.send({
-                status:200,
-                msg:`added an data in ${context.table}`
-            })
+            const updateArr = mdb.updateData(context)
+            return res.send(
+                updateArr
+            )
         }catch(e){
             console.log(e.message)
             switch (e.message){
-                case "433":
-                    res.status(400)
-                    return res.send({
-                        status:433,
-                        msg:'[MatchDB]:fail to add an data--- _id has been used'
-                    })
-                    break;
                 case "434":
                     res.status(400)
                     return res.send({
@@ -62,13 +54,13 @@ router.post('/', function(req, res, next) {
             }
             res.status(400)
             return res.send({
-                status:432,
-                msg:`fail add an data---${e.message}`
+                status:452,
+                msg:`fail delete an data---${e.message}`
             })
         }
     }
-
 });
+
 
 
 module.exports = router;

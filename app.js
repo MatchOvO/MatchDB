@@ -14,6 +14,8 @@ const addData = require('./routes/addData');
 const getTable = require('./routes/getTable');
 const getTableData = require('./routes/getTableData');
 const deleteData = require('./routes/deleteData')
+const getData = require('./routes/getData');
+const updateData = require('./routes/updateData')
 
 const app = express();
 
@@ -36,6 +38,8 @@ app.use('/addData',addData);
 app.use('/getTable',getTable);
 app.use('/getTableData',getTableData);
 app.use('/deleteData',deleteData);
+app.use('/getData',getData);
+app.use('/updateData',updateData);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

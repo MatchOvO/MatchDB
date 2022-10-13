@@ -133,6 +133,19 @@ axios.post('http://localhost:3020/dbData',{
         * Object ==> "[object,object]" (某种情况下Array也会转为此形式)
         * Array ==> "num1,num2,num3...." (当Array的元素全为数字时)
 
+###  `/getData`
+* 请求类型: `GET | POST`
+* 请求体类型: `URL | JSON ｜ Urlencoded`
+* 请求参数:
+    * db: `String`
+        * 需要操作的数据库的名字
+    * table: `String`
+        * 需要查询的表格名称
+    * _id: `Array | String`
+* 返回类型: `JSON-Array`
+* 返回参数:
+    * 返回的数据为一个包含查询到的所有数据的数组
+
 ###  `/getTable` （实际生产中不建议使用）
 * 请求类型: `GET`
 * 请求体类型: `URL | JSON ｜ Urlencoded`
@@ -141,7 +154,7 @@ axios.post('http://localhost:3020/dbData',{
         * 需要操作的数据库的名字
     * table: `String`
         * 需要查询的表格名称
-* 返回类型: `JSON`
+* 返回类型: `JSON-Object`
 * 返回参数: 
   * tableInfo: `Object`
     * 包含表格的基本信息
@@ -219,10 +232,9 @@ axios.post('http://localhost:3020/dbData',{
         * 需要操作的数据库的名字
     * table: `String`
         * 需要查询的表格名称
-* 返回类型: `JSON`
+* 返回类型: `JSON-Object`
 * 返回参数:
-    * data: `Object`
-        * 表格中的所有数据
+  * 表格中的所有数据---id为键值的数据对象
 #### 返回数据示例（JSON）
 ```json
 {
@@ -240,3 +252,22 @@ axios.post('http://localhost:3020/dbData',{
   }
 }
 ```
+
+###  `/updateData`
+* 请求类型: `POST`
+* 请求体类型: `JSON ｜ Urlencoded`
+* 请求参数:
+    * db: `String`
+        * 需要操作的数据库的名字
+    * table: `String`
+        * 需要操作的表格名称
+    * _id: `Array | String | Number`
+        * 需要删除的id
+        * 对于_id的处理方式同 [/deleteData]()一样
+    * field: `Object`
+      * 需要更新的字段
+      * 以需要更新的字段作为键(key)，更新的值作为值(value)
+      * table中format格式不包含的字段将会被忽略
+* 返回类型: `JSON--Array`
+* 返回参数:
+  * 返回的数据为一个包含被修改的所有数据的数组

@@ -3,24 +3,27 @@ var router = express.Router();
 const mdb = require('../matchDB/modules/methods');
 
 /* GET users listing. */
-router.post('/', function(req, res, next) {
-    console.log("POST:")
+router.get('/', getDataHandler);
+router.post('/', getDataHandler);
+
+function getDataHandler(req,res,next){
+    console.log("POST/GET:")
     console.log(req.body);
-    const context = req.body;
+    const context = (Object.keys(req.query).length !== 0) ? req.query : req.body;
     // Check Context
-    const checkResult = mdb.contextCheck('addData',context)
+    const checkResult = mdb.contextCheck('getData',context)
     if (!checkResult.result){
         res.status(400)
         return res.send({
-            status:431,
+            status:451,
             msg:checkResult.msg
         })
     }
     // Operation
-    addData(context).then(()=>console.log('An addData request has been handled'))
+    getData(context).then(()=>console.log('An getData request has been handled'))
 
     // Function
-    async function addData(context) {
+    async function getData(context) {
         try{
             const rootConfig = await mdb.readRootConfig()
             if (!(rootConfig.database.includes(context.db))){
@@ -30,21 +33,13 @@ router.post('/', function(req, res, next) {
             if (!(dbConfig.table.includes(context.table))){
                 throw new Error('435')
             }
-            await mdb.addData(context)
-            return res.send({
-                status:200,
-                msg:`added an data in ${context.table}`
-            })
+            const dataArr = mdb.getData(context)
+            return res.send(
+                dataArr
+            )
         }catch(e){
             console.log(e.message)
             switch (e.message){
-                case "433":
-                    res.status(400)
-                    return res.send({
-                        status:433,
-                        msg:'[MatchDB]:fail to add an data--- _id has been used'
-                    })
-                    break;
                 case "434":
                     res.status(400)
                     return res.send({
@@ -62,13 +57,14 @@ router.post('/', function(req, res, next) {
             }
             res.status(400)
             return res.send({
-                status:432,
-                msg:`fail add an data---${e.message}`
+                status:452,
+                msg:`fail to get an data---${e.message}`
             })
         }
     }
+}
 
-});
+
 
 
 module.exports = router;

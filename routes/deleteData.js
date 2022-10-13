@@ -10,6 +10,7 @@ router.post('/', function(req, res, next) {
     // Check Context
     const checkResult = mdb.contextCheck('deleteData',context)
     if (!checkResult.result){
+        res.status(400)
         return res.send({
             status:431,
             msg:checkResult.msg
@@ -30,9 +31,9 @@ router.post('/', function(req, res, next) {
                 throw new Error('435')
             }
             const deletedArr = mdb.deleteData(context)
-            return res.send({
+            return res.send(
                 deletedArr
-            })
+            )
         }catch(e){
             console.log(e.message)
             switch (e.message){
@@ -58,8 +59,8 @@ router.post('/', function(req, res, next) {
             })
         }
     }
-
 });
+
 
 
 module.exports = router;
