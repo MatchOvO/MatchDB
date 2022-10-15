@@ -17,7 +17,8 @@ const deleteData = require('./routes/deleteData')
 const getData = require('./routes/getData');
 const updateData = require('./routes/updateData');
 const getWhere = require('./routes/getWhere');
-const deleteWhere = require('./routes/deleteWhere')
+const deleteWhere = require('./routes/deleteWhere');
+const updateWhere = require('./routes/updateWhere')
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use('/getData',getData);
 app.use('/updateData',updateData);
 app.use('/getWhere',getWhere);
 app.use('/deleteWhere',deleteWhere);
+app.use('/updateWhere',updateWhere);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

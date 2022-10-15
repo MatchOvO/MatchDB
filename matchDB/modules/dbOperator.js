@@ -102,7 +102,7 @@ class matchDB{
 
     dataCompose(contextData,dataFormat){
         if (!contextData.hasOwnProperty("_id")){
-            contextData._id = uuid()
+            contextData._id = Id.randomId()
         }else if(!(contextData._id.constructor === String)){
             contextData._id = String(contextData._id)
         }
@@ -301,11 +301,12 @@ class matchDB{
         }
     }
 
-    updateData(context){
+    updateData(context,tableObj){
         try{
             const {db,table,field} = context
             const idArr = this.idHandler(context)
-            const {tableInfo,data,index} = this.readTableSync(db,table)
+            if (!tableObj) tableObj = this.readTableSync(db,table)
+            const {tableInfo,data,index} = tableObj
             const updateArr = []
             idArr.forEach(id=>{
                 if (data[id]){
@@ -325,6 +326,8 @@ class matchDB{
             throw new Error(e.message)
         }
     }
+
+
     //Or 规则的 where查询
     where_or(context, tableObj){
         const {db,table,where} = context
@@ -336,9 +339,7 @@ class matchDB{
             if (fieldValue.constructor !== Array){
                 _selector(fieldValue)
             }else{
-                fieldValue.forEach(value=>{
-                    _selector(value)
-                })
+                fieldValue.forEach(_selector)
             }
             function _selector(fieldValue) {
                 // 查询字段不存在则忽略
@@ -349,7 +350,6 @@ class matchDB{
                     }
                 }
             }
-
         }
         // 去重
         idArr = mArr.distinct(idArr)
@@ -366,44 +366,79 @@ class matchDB{
             let fieldValue = where[fieldKey]
             if (fieldValue.constructor !== Array){
                 if (fieldValue.constructor !== String) fieldValue = String(fieldValue)
-                if (index[fieldKey]){
-                    if (index[fieldKey][fieldValue]) {
-                        tempArr.push(index[fieldKey][fieldValue])
-                    }else{
-                        tempArr.push([])
-                    }
-                }else{
-                    //如果字段在表中不存在，AND运算不可能查询出数据，直接加入一个空数组迫使其查询结果为失败
-                    tempArr.push([])
+                const searchResult = index[fieldKey] ? innerSearch() : []
+                function innerSearch() {
+                    const innerSearchResult = index[fieldKey][fieldValue] ? index[fieldKey][fieldValue] : []
+                    return innerSearchResult
                 }
+                tempArr.push(searchResult)
             }else{
                 //如果为数组，由于AND运算不可能查询出数据，直接加入一个空数组迫使其查询结果为失败
                 tempArr.push([])
             }
         }
         // 求id的重复项
-        console.log(tempArr)
         const idArr = mArr.repeat(tempArr)
         return idArr
+    }
+
+    where_both(context, tableObj){
+        const {db,table,where} = context
+        if (!tableObj) tableObj = this.readTableSync(db,table)
+        const {index} = tableObj
+        const tempArr =[]
+        for (const field in where) {
+            let fieldValue = where[field]
+            if (fieldValue.constructor !== Array){
+                if (fieldValue.constructor !== String) fieldValue = String(fieldValue);
+                const searchResult = index[field] ? innerSearch() : []
+                function innerSearch() {
+                    const innerSearchResult = index[field][fieldValue] ? index[field][fieldValue] : []
+                    return innerSearchResult
+                }
+                tempArr.push(searchResult)
+            }else {
+                let searchResult = []
+                fieldValue.forEach(_selector)
+                tempArr.push(mArr.distinct(searchResult))
+                function _selector(fieldValue) {
+                    if (index[field]){
+                        if (fieldValue.constructor !== String) fieldValue = String(fieldValue)
+                        if (index[field][fieldValue]){
+                            searchResult.push(...index[field][fieldValue])
+                        }
+                    }
+
+                }
+            }
+        }
+        // 求id的重复项
+        const idArr = mArr.repeat(tempArr)
+        return idArr
+    }
+
+    switchMode_where(context, tableObj) {
+        let mode = 'BOTH'
+        if (context.hasOwnProperty('mode')) mode = context.mode
+        switch (mode) {
+            case "OR":
+                return this.where_or(context, tableObj)
+                break
+            case "AND":
+                return this.where_and(context, tableObj)
+                break
+            case "BOTH":
+                return this.where_both(context, tableObj)
+            default:
+                return this.where_both(context, tableObj)
+        }
     }
 
     getWhere(context){
         try{
             const {db,table} = context
-            let mode = 'OR'
-            if (context.hasOwnProperty('mode')) mode = context.mode
             const tableObj = this.readTableSync(db,table)
-            let idArr = []
-            switch (mode){
-                case "OR":
-                    idArr = this.where_or(context,tableObj)
-                    break
-                case "AND":
-                    idArr = this.where_and(context,tableObj)
-                    break
-                default:
-                    idArr = this.where_or(context,tableObj)
-            }
+            let idArr = this.switchMode_where(context, tableObj);
             const dataArr = this.getData({
                 db,
                 table,
@@ -418,26 +453,32 @@ class matchDB{
     deleteWhere(context){
         try{
             const {db,table} = context
-            let mode = 'OR'
-            if (context.hasOwnProperty('mode')) mode = context.mode
             const tableObj = this.readTableSync(db,table)
-            let idArr = []
-            switch (mode){
-                case "OR":
-                    idArr = this.where_or(context,tableObj)
-                    break
-                case "AND":
-                    idArr = this.where_and(context,tableObj)
-                    break
-                default:
-                    idArr = this.where_or(context,tableObj)
-            }
+            let idArr = this.switchMode_where(context, tableObj);
             const deleteArr = this.deleteData({
                 db,
                 table,
                 _id:idArr
             },tableObj)
             return deleteArr
+        }catch (e) {
+            throw new Error(e.message)
+        }
+    }
+
+    updateWhere(context){
+        try{
+            const {db,table,field} = context
+            const tableObj = this.readTableSync(db,table)
+            let idArr = this.switchMode_where( context, tableObj);
+            console.log(idArr)
+            const updateArr = this.updateData({
+                db,
+                table,
+                _id:idArr,
+                field
+            },tableObj)
+            return updateArr
         }catch (e) {
             throw new Error(e.message)
         }

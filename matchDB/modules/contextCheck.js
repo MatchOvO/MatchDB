@@ -49,7 +49,7 @@ function contextCheck(operation,context){
             if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
             if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
             if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
-            if (!context.hasOwnProperty('_id')) return {result:false,msg:'[MatchDB]:Property {_id} is needed'};
+            if(!context.hasOwnProperty('_id')) return {result:false,msg:'[MatchDB]:Property {_id} is needed'};
             if (context._id.constructor !== String && context._id.constructor !== Array && context._id.constructor !== Number) return {result:false,msg:'[MatchDB]:Property {_id} should be an String or an Array'};
             break
         case 'getData':
@@ -59,7 +59,7 @@ function contextCheck(operation,context){
             if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
             if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
             if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
-            if (!context.hasOwnProperty('_id')) return {result:false,msg:'[MatchDB]:Property {_id} is needed'};
+            if(!context.hasOwnProperty('_id')) return {result:false,msg:'[MatchDB]:Property {_id} is needed'};
             if (context._id.constructor !== String && context._id.constructor !== Array && context._id.constructor !== Number) return {result:false,msg:'[MatchDB]:Property {_id} should be an String or an Array'};
             break
         case 'updateData':
@@ -71,7 +71,7 @@ function contextCheck(operation,context){
             if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
             if (!context.hasOwnProperty('_id')) return {result:false,msg:'[MatchDB]:Property {_id} is needed'};
             if (context._id.constructor !== String && context._id.constructor !== Array && context._id.constructor !== Number) return {result:false,msg:'[MatchDB]:Property {_id} should be an String or an Array'};
-            if (!context.hasOwnProperty('field')) return {result:false,msg:'[MatchDB]:Property {field} is needed'};
+            if(!context.hasOwnProperty('field')) return {result:false,msg:'[MatchDB]:Property {field} is needed'};
             if (context.field.constructor !== Object) return {result:false,msg:'[MatchDB]:Property {field} should be an Object'};
             break
         case 'getWhere':
@@ -81,7 +81,7 @@ function contextCheck(operation,context){
             if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
             if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
             if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
-            if (!context.hasOwnProperty('where')) return {result:false,msg:'[MatchDB]:Property {field} is needed'};
+            if(!context.hasOwnProperty('where')) return {result:false,msg:'[MatchDB]:Property {field} is needed'};
             if (context.where.constructor !== Object) return {result:false,msg:'[MatchDB]:Property {field} should be an Object'};
             break
         case 'deleteWhere':
@@ -91,7 +91,7 @@ function contextCheck(operation,context){
             if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
             if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
             if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
-            if (!context.hasOwnProperty('where')) return {result:false,msg:'[MatchDB]:Property {field} is needed'};
+            if(!context.hasOwnProperty('where')) return {result:false,msg:'[MatchDB]:Property {field} is needed'};
             if (context.where.constructor !== Object) return {result:false,msg:'[MatchDB]:Property {field} should be an Object'};
             break
     }

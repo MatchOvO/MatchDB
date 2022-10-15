@@ -1,6 +1,10 @@
+const uuid = require('uuid')
 class IdHandler {
     constructor(_id) {
         this.id = _id
+    }
+    static randomId(){
+        return uuid()
     }
 
     idArr(){

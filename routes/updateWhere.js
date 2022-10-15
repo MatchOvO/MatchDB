@@ -18,10 +18,10 @@ router.post('/', (req, res, next)=>{
         })
     }
     // Operation
-    deleteWhere(context).then(()=>console.log('An deleteWhere request has been handled'))
+    updateWhere(context).then(()=>console.log('An updateWhere request has been handled'))
 
     // Function
-    async function deleteWhere(context) {
+    async function updateWhere(context) {
         try{
             const rootConfig = await mdb.readRootConfig()
             if (!(rootConfig.database.includes(context.db))){
@@ -31,9 +31,9 @@ router.post('/', (req, res, next)=>{
             if (!(dbConfig.table.includes(context.table))){
                 throw new Error('435')
             }
-            const deleteArr = mdb.deleteWhere(context)
+            const updateArr = mdb.updateWhere(context)
             return res.send(
-                deleteArr
+                updateArr
             )
         }catch(e){
             console.log(e.message)
