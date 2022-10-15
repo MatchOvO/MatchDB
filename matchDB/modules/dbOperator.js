@@ -1,6 +1,6 @@
 const fs = require('fs/promises')
 const fsN = require('fs')
-const {v1:uuidv1} = require('uuid')
+const uuid  = require('uuid')
 const mArr = require('./methods_array')
 const Id = require('./IdHandler')
 class matchDB{
@@ -102,7 +102,7 @@ class matchDB{
 
     dataCompose(contextData,dataFormat){
         if (!contextData.hasOwnProperty("_id")){
-            contextData._id = uuidv1()
+            contextData._id = uuid()
         }else if(!(contextData._id.constructor === String)){
             contextData._id = String(contextData._id)
         }
