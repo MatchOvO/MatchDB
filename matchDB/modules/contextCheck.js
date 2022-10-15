@@ -30,9 +30,9 @@ function contextCheck(operation,context){
             if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
             if(!context.hasOwnProperty('data')) return {result:false,msg:'[MatchDB]:Property {data} is needed'};
             if ((context.data.constructor !== Object) && (context.data.constructor !== Array)) return {result:false,msg:'[MatchDB]:Property {data} should be an Object'};
-            // if ((context.data.hasOwnProperty("_id"))){
-            //     if ((context.data._id.constructor !== String) && (context.data._id.constructor !== Number)) return {result:false,msg:'[MatchDB]:Data\'s Property {_id} should be an String or Number'};
-            // }
+            if ((context.data.hasOwnProperty("_id"))){
+                if ((context.data._id.constructor !== String) && (context.data._id.constructor !== Number)) return {result:false,msg:'[MatchDB]:Data\'s Property {_id} should be an String or Number'};
+            }
             break;
         case 'getTable':
             if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
