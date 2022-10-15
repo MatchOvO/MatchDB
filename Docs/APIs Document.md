@@ -280,9 +280,13 @@ axios.post('http://localhost:3020/dbData',{
         * 需要操作的数据库的名字
     * table: `String`
         * 需要操作的表格名称
-    * _id: `Array | String | Number`
-        * 需要删除的id
-        * 对于_id的处理方式同 [/deleteData]()一样
+    * mode: `AND | OR`
+      * 默认： `OR`
+      * 传递where的模式，OR表示筛选条件为并集，AND表示筛选条件为交集
+        * 可以为一个字段传递一个数组表示筛选满足不同条件的数据
+            
+          例如在`OR`模式下：{age:[18,19]}表示筛选年龄为18或者19岁的
+        * `AND`模式表示返回满足对象里所有的条件的数据,AND模式下也能够
     * where: `Object`
         * 需要查询的字段
         * 以需要查询的字段作为键(key)，查询的值作为值(value)
@@ -290,3 +294,66 @@ axios.post('http://localhost:3020/dbData',{
 * 返回类型: `JSON--Array`
 * 返回参数:
     * 返回的数据为一个包含被修改的所有数据的数组
+#### AND请求示例
+```js
+axios.post('http://127.0.0.1:3020/getWhere',{
+    db:"mdb_01",
+    table:"users",
+    mode:"AND",
+    field:{
+        gender:"男",
+        age:19
+    }
+})
+```
+#### 返回
+```json
+[
+  {
+    "_id": "1",
+    "name": "火柴",
+    "gender": "男",
+    "age": 19
+  },
+  {
+    "_id": "3",
+    "name": "泽同",
+    "gender": "男",
+    "age": 19
+  }
+]
+```
+#### OR请求示例
+```js
+axios.post('http://127.0.0.1:3020/getWhere',{
+    db:"mdb_01",
+    table:"users",
+    mode:"OR",
+    field:{
+        age:[18,19]
+    }
+})
+```
+#### 返回
+```json
+[
+  {
+    "_id": "1",
+    "name": "火柴",
+    "gender": "男",
+    "age": 19
+  },
+  {
+    "_id": "1",
+    "name": "桃子",
+    "gender": "女",
+    "age": 18
+  },
+  {
+    "_id": "3",
+    "name": "泽同",
+    "gender": "男",
+    "age": 19
+  }
+]
+```
