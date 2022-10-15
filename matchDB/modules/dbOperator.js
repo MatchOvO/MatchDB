@@ -1,9 +1,10 @@
 const fs = require('fs/promises')
 const fsN = require('fs')
-const uuid = require('uuid')
+const {v1:uuidv1} = require('uuid')
+const mArr = require('./methods_array')
+const Id = require('./IdHandler')
 class matchDB{
-    constructor(config) {
-        this.config = config
+    constructor() {
         /**
          *  There's some Async function that need to return a value
          * */
@@ -61,75 +62,6 @@ class matchDB{
  *  No Async operation or Async function that no need to return a value
  * */
 
-    /**
-     *  Check the context's format
-     */
-    contextCheck(operation,context){
-        let result = true
-        if (context.constructor !== Object) return `[MatchDB]: post or context format error,please use JSON to post or use the correct context format`
-        switch (operation){
-            case 'dbNormalize':
-                if(!context.hasOwnProperty('dbName')) return {result:false,msg:'[MatchDB]:Property {dbName} is needed'};
-                if (context.dbName.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {dbName} should be an String'};
-                if (context.dbName === '') return  {result:false,msg:'[MatchDB]:Property {dbName} can not be empty'};
-                break;
-            case 'createTable':
-                if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
-                if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
-                if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {db} can not be empty'};
-                if(!context.hasOwnProperty('tableName')) return {result:false,msg:'[MatchDB]:Property {tableName} is needed'};
-                if (context.tableName.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {formName} should be an String'};
-                if (context.tableName === '') return  {result:false,msg:'[MatchDB]:Property {formName} can not be empty'};
-                if(!context.hasOwnProperty('format') || !Array.isArray(context.format)) return {result:false,msg:'[MatchDB]:Property {format} is needed and it is needed as an Array'};
-                if (context.format.length === 0) return  {result:false,msg:'[MatchDB]:Property {format} can not be an empty Array'};
-                break;
-            case 'addData':
-                if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
-                if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
-                if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {"db"} can not be empty'};
-                if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
-                if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
-                if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
-                if(!context.hasOwnProperty('data')) return {result:false,msg:'[MatchDB]:Property {data} is needed'};
-                if (!(context.data.constructor === Object)) return {result:false,msg:'[MatchDB]:Property {data} should be an Object'};
-                if ((context.data.hasOwnProperty("_id"))){
-                    if ((context.data._id.constructor !== String) && (context.data._id.constructor !== Number)) return {result:false,msg:'[MatchDB]:Data\'s Property {_id} should be an String or Number'};
-                }
-                break;
-            case 'getTable':
-                if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
-                if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
-                if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {"db"} can not be empty'};
-                if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
-                if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
-                if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
-                break;
-            case 'deleteData' || 'getData':
-                if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
-                if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
-                if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {"db"} can not be empty'};
-                if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
-                if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
-                if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
-                if (!context.hasOwnProperty('_id')) return {result:false,msg:'[MatchDB]:Property {_id} is needed'};
-                if (context._id.constructor !== String && context._id.constructor !== Array && context._id.constructor !== Number) return {result:false,msg:'[MatchDB]:Property {_id} should be an String or an Array'};
-                break;
-            case 'updateData':
-                if(!context.hasOwnProperty('db')) return {result:false,msg:'[MatchDB]:Property {db} is needed'};
-                if (context.db.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {db} should be an String'};
-                if (context.db === '') return  {result:false,msg:'[MatchDB]:Property {"db"} can not be empty'};
-                if(!context.hasOwnProperty('table')) return {result:false,msg:'[MatchDB]:Property {table} is needed'};
-                if (context.table.constructor !== String) return  {result:false,msg:'[MatchDB]:Property {table} should be an String'};
-                if (context.table === '') return  {result:false,msg:'[MatchDB]:Property {table} can not be empty'};
-                if (!context.hasOwnProperty('_id')) return {result:false,msg:'[MatchDB]:Property {_id} is needed'};
-                if (context._id.constructor !== String && context._id.constructor !== Array && context._id.constructor !== Number) return {result:false,msg:'[MatchDB]:Property {_id} should be an String or an Array'};
-                if (!context.hasOwnProperty('field')) return {result:false,msg:'[MatchDB]:Property {field} is needed'};
-                if (context.field.constructor !== Object) return {result:false,msg:'[MatchDB]:Property {field} should be an Object'}
-                break;
-        }
-        return {result}
-    }
-
     dbConfigNormalize(context) {
         const configObj = {
             dbInfo:{
@@ -170,9 +102,9 @@ class matchDB{
 
     dataCompose(contextData,dataFormat){
         if (!contextData.hasOwnProperty("_id")){
-            contextData._id = uuid()
+            contextData._id = uuidv1()
         }else if(!(contextData._id.constructor === String)){
-            contextData._id = contextData._id.toString()
+            contextData._id = String(contextData._id)
         }
         let newData = {}
         dataFormat.forEach((element)=>{
@@ -249,13 +181,10 @@ class matchDB{
             }
         }
     }
+
      idHandler(context){
          const {_id} = context
-         const idArr = _id.constructor === Array ? _id : [_id]
-         // 将id转为字符串
-         idArr.forEach((item,index)=>{
-             if (item.constructor !== String) idArr[index] = String(item)
-         })
+         const idArr = new Id(_id).idArr()
          return idArr
      }
 
@@ -306,14 +235,26 @@ class matchDB{
             try {
                 let {tableInfo,data,index} = await readTable
                 const dataFormat = tableInfo.format
-                const newData = dataCompose(contextData,dataFormat)
-                if (data[newData._id]){
-                    throw new Error("433")
+                let newData;
+                if (contextData.constructor === Object) {
+                    newData = dataCompose(contextData, dataFormat)
+                    dataOperator()
                 }
-                data[newData._id] = newData
-                updateTableInfo(tableInfo,data)
-                updateTableIndex(tableInfo,data,index)
+                if (contextData.constructor === Array){
+                    contextData.forEach(oldData=>{
+                        newData = dataCompose(oldData, dataFormat)
+                        dataOperator()
+                    })
+                }
                 updateTable(db,table,tableInfo,data,index)
+                function dataOperator() {
+                    if (data[newData._id]){
+                        throw new Error("433")
+                    }
+                    data[newData._id] = newData
+                    updateTableInfo(tableInfo,data)
+                    updateTableIndex(tableInfo,data,index)
+                }
             }catch (e) {
                 throw new Error(e.message)
             }
@@ -321,11 +262,11 @@ class matchDB{
         return handler()
     }
 
-    deleteData(context){
+    deleteData(context,tableObj){
         try{
             const {db,table} = context
             const idArr = this.idHandler(context)
-            const tableObj = this.readTableSync(db,table)
+            if (!tableObj) tableObj = this.readTableSync(db,table)
             const {tableInfo,data,index} = tableObj
             const deletedArr = []
             idArr.forEach(id=>{
@@ -344,11 +285,12 @@ class matchDB{
         }
     }
 
-    getData(context){
+    getData(context,tableObj){
         try{
             const {db,table} = context
             const idArr = this.idHandler(context)
-            const {data} = this.readTableSync(db,table)
+            if (!tableObj) tableObj = this.readTableSync(db,table)
+            const {data} = tableObj
             const dataArr = []
             idArr.forEach((id)=>{
                 if (data[id]) dataArr.push(data[id])
@@ -368,7 +310,9 @@ class matchDB{
             idArr.forEach(id=>{
                 if (data[id]){
                     for (const fieldKey in field) {
-                        if (data[id][fieldKey]) data[id][fieldKey] = field[fieldKey];
+                        if (data[id][fieldKey] || data[id][fieldKey] === '') {
+                            data[id][fieldKey] = field[fieldKey];
+                        }
                     }
                     updateArr.push(data[id])
                 }
@@ -381,6 +325,122 @@ class matchDB{
             throw new Error(e.message)
         }
     }
+    //Or 规则的 where查询
+    where_or(context, tableObj){
+        const {db,table,where} = context
+        if (!tableObj) tableObj = this.readTableSync(db,table)
+        const {index} = tableObj
+        let idArr = []
+        for (const fieldKey in where) {
+            let fieldValue = where[fieldKey]
+            if (fieldValue.constructor !== Array){
+                _selector(fieldValue)
+            }else{
+                fieldValue.forEach(value=>{
+                    _selector(value)
+                })
+            }
+            function _selector(fieldValue) {
+                // 查询字段不存在则忽略
+                if (index[fieldKey]){
+                    if (fieldValue.constructor !== String) fieldValue = String(fieldValue)
+                    if (index[fieldKey][fieldValue]) {
+                        idArr.push(...index[fieldKey][fieldValue])
+                    }
+                }
+            }
 
+        }
+        // 去重
+        idArr = mArr.distinct(idArr)
+        return idArr
+    }
+
+    //And 规则的 where查询
+    where_and(context, tableObj){
+        const {db,table,where} = context
+        if (!tableObj) tableObj = this.readTableSync(db,table)
+        const {index} = tableObj
+        const tempArr = []
+        for (const fieldKey in where) {
+            let fieldValue = where[fieldKey]
+            if (fieldValue.constructor !== Array){
+                if (fieldValue.constructor !== String) fieldValue = String(fieldValue)
+                if (index[fieldKey]){
+                    if (index[fieldKey][fieldValue]) {
+                        tempArr.push(index[fieldKey][fieldValue])
+                    }else{
+                        tempArr.push([])
+                    }
+                }else{
+                    //如果字段在表中不存在，AND运算不可能查询出数据，直接加入一个空数组迫使其查询结果为失败
+                    tempArr.push([])
+                }
+            }else{
+                //如果为数组，由于AND运算不可能查询出数据，直接加入一个空数组迫使其查询结果为失败
+                tempArr.push([])
+            }
+        }
+        // 求id的重复项
+        console.log(tempArr)
+        const idArr = mArr.repeat(tempArr)
+        return idArr
+    }
+
+    getWhere(context){
+        try{
+            const {db,table} = context
+            let mode = 'OR'
+            if (context.hasOwnProperty('mode')) mode = context.mode
+            const tableObj = this.readTableSync(db,table)
+            let idArr = []
+            switch (mode){
+                case "OR":
+                    idArr = this.where_or(context,tableObj)
+                    break
+                case "AND":
+                    idArr = this.where_and(context,tableObj)
+                    break
+                default:
+                    idArr = this.where_or(context,tableObj)
+            }
+            const dataArr = this.getData({
+                db,
+                table,
+                _id:idArr
+            },tableObj)
+            return dataArr
+        }catch (e) {
+            throw new Error(e.message)
+        }
+    }
+
+    deleteWhere(context){
+        try{
+            const {db,table} = context
+            let mode = 'OR'
+            if (context.hasOwnProperty('mode')) mode = context.mode
+            const tableObj = this.readTableSync(db,table)
+            let idArr = []
+            switch (mode){
+                case "OR":
+                    idArr = this.where_or(context,tableObj)
+                    break
+                case "AND":
+                    idArr = this.where_and(context,tableObj)
+                    break
+                default:
+                    idArr = this.where_or(context,tableObj)
+            }
+            const deleteArr = this.deleteData({
+                db,
+                table,
+                _id:idArr
+            },tableObj)
+            return deleteArr
+        }catch (e) {
+            throw new Error(e.message)
+        }
+    }
 }
 module.exports = new matchDB()

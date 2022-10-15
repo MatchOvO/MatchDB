@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const mdb = require('../matchDB/modules/methods');
+const mdb = require('../matchDB/modules/dbOperator');
 const fs = require('fs/promises')
 
 /* GET users listing. */
@@ -18,7 +18,6 @@ router.post('/', function(req, res, next) {
 
     //function
     async function rootNormalize(context) {
-        const dbName = context.dbName
         await  fs.rm(`./matchDB/matchDB_root/`,{force:true,recursive:true})
         await fs.mkdir(`./matchDB/matchDB_root/`)
         const rootConfig = mdb.rootConfigNormalize(context)

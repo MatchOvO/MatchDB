@@ -4,24 +4,27 @@ const mdb = require('../matchDB/modules/dbOperator');
 const contextCheck = require('../matchDB/modules/contextCheck')
 
 /* GET users listing. */
-router.post('/', function(req, res, next) {
+router.get('/', getDataHandler);
+router.post('/', getDataHandler);
+
+function getDataHandler(req,res,next){
     console.log("POST:")
     console.log(req.body);
     const context = req.body;
     // Check Context
-    const checkResult = contextCheck('updateData',context)
+    const checkResult = contextCheck('deleteWhere',context)
     if (!checkResult.result){
         res.status(400)
         return res.send({
-            status:431,
+            status:461,
             msg:checkResult.msg
         })
     }
     // Operation
-    updateData(context).then(()=>console.log('An updateData request has been handled'))
+    deleteWhere(context).then(()=>console.log('An deleteWhere request has been handled'))
 
     // Function
-    async function updateData(context) {
+    async function deleteWhere(context) {
         try{
             const rootConfig = await mdb.readRootConfig()
             if (!(rootConfig.database.includes(context.db))){
@@ -31,9 +34,9 @@ router.post('/', function(req, res, next) {
             if (!(dbConfig.table.includes(context.table))){
                 throw new Error('435')
             }
-            const updateArr = mdb.updateData(context)
+            const deleteArr = mdb.deleteWhere(context)
             return res.send(
-                updateArr
+                deleteArr
             )
         }catch(e){
             console.log(e.message)
@@ -55,12 +58,13 @@ router.post('/', function(req, res, next) {
             }
             res.status(400)
             return res.send({
-                status:452,
-                msg:`fail delete an data---${e.message}`
+                status:462,
+                msg:`fail to delete data---${e.message}`
             })
         }
     }
-});
+}
+
 
 
 

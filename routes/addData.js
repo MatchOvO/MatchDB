@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-const mdb = require('../matchDB/modules/methods');
+const mdb = require('../matchDB/modules/dbOperator');
+const contextCheck = require('../matchDB/modules/contextCheck')
 
 /* GET users listing. */
 router.post('/', function(req, res, next) {
@@ -8,7 +9,7 @@ router.post('/', function(req, res, next) {
     console.log(req.body);
     const context = req.body;
     // Check Context
-    const checkResult = mdb.contextCheck('addData',context)
+    const checkResult = contextCheck('addData',context)
     if (!checkResult.result){
         res.status(400)
         return res.send({

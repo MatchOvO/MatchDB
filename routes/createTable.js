@@ -1,14 +1,15 @@
 var express = require('express');
 var router = express.Router();
-const mdb = require('../matchDB/modules/methods');
+const mdb = require('../matchDB/modules/dbOperator');
 const fs = require('fs/promises')
+const contextCheck = require('../matchDB/modules/contextCheck')
 
 /* GET users listing. */
 router.post('/', function(req, res, next) {
     console.log(req.body);
     const context = req.body;
     // check context
-    const checkResult = mdb.contextCheck('createTable',context)
+    const checkResult = contextCheck('createTable',context)
     if (!checkResult.result){
         res.status(400)
         return res.send({

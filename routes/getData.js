@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-const mdb = require('../matchDB/modules/methods');
+const mdb = require('../matchDB/modules/dbOperator');
+const contextCheck = require('../matchDB/modules/contextCheck')
 
 /* GET users listing. */
 router.get('/', getDataHandler);
@@ -11,7 +12,7 @@ function getDataHandler(req,res,next){
     console.log(req.body);
     const context = (Object.keys(req.query).length !== 0) ? req.query : req.body;
     // Check Context
-    const checkResult = mdb.contextCheck('getData',context)
+    const checkResult = contextCheck('getData',context)
     if (!checkResult.result){
         res.status(400)
         return res.send({

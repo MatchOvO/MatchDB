@@ -1,13 +1,14 @@
 var express = require('express');
 var router = express.Router();
-const mdb = require('../matchDB/modules/methods');
+const mdb = require('../matchDB/modules/dbOperator');
 const fs = require('fs/promises')
+const contextCheck = require('../matchDB/modules/contextCheck')
 
 /* GET users listing. */
 router.post('/', function(req, res, next) {
     const context = req.body;
     // check context
-    if (!(mdb.contextCheck('dbNormalize',context).result)){
+    if (!(contextCheck('dbNormalize',context).result)){
         res.status(400)
         return res.send({
             status:411,

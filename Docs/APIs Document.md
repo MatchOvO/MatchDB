@@ -271,3 +271,22 @@ axios.post('http://localhost:3020/dbData',{
 * 返回类型: `JSON--Array`
 * 返回参数:
   * 返回的数据为一个包含被修改的所有数据的数组
+
+###  `/getWhere`
+* 请求类型: `POST`
+* 请求体类型: `JSON ｜ Urlencoded`
+* 请求参数:
+    * db: `String`
+        * 需要操作的数据库的名字
+    * table: `String`
+        * 需要操作的表格名称
+    * _id: `Array | String | Number`
+        * 需要删除的id
+        * 对于_id的处理方式同 [/deleteData]()一样
+    * where: `Object`
+        * 需要查询的字段
+        * 以需要查询的字段作为键(key)，查询的值作为值(value)
+        * table中format格式不包含的字段将会被忽略
+* 返回类型: `JSON--Array`
+* 返回参数:
+    * 返回的数据为一个包含被修改的所有数据的数组

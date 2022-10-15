@@ -15,7 +15,9 @@ const getTable = require('./routes/getTable');
 const getTableData = require('./routes/getTableData');
 const deleteData = require('./routes/deleteData')
 const getData = require('./routes/getData');
-const updateData = require('./routes/updateData')
+const updateData = require('./routes/updateData');
+const getWhere = require('./routes/getWhere');
+const deleteWhere = require('./routes/deleteWhere')
 
 const app = express();
 
@@ -29,7 +31,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
+/**
+ *  Routers
+ * */
 app.use('/users', usersRouter);
 app.use('/rootNormalize',rootNormalize);
 app.use('/dbNormalize',dbNormalize);
@@ -40,6 +44,8 @@ app.use('/getTableData',getTableData);
 app.use('/deleteData',deleteData);
 app.use('/getData',getData);
 app.use('/updateData',updateData);
+app.use('/getWhere',getWhere);
+app.use('/deleteWhere',deleteWhere);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

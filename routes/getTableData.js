@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-const mdb = require('../matchDB/modules/methods');
+const mdb = require('../matchDB/modules/dbOperator');
+const contextCheck = require('../matchDB/modules/contextCheck')
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -9,7 +10,7 @@ router.get('/', function(req, res, next) {
     console.log(req.body);
     const context = (Object.keys(req.query).length !== 0) ? req.query : req.body;
     // Check Context
-    const checkResult = mdb.contextCheck('getTable',context)
+    const checkResult = contextCheck('getTable',context)
     if (!checkResult.result){
         res.status(400)
         return res.send({
@@ -32,7 +33,7 @@ router.get('/', function(req, res, next) {
                 throw new Error("444")
             }
             const tableObj = await mdb.readTable(context.db,context.table)
-            return res.send(tableObj.data)
+            return res.send(Object.values(tableObj.data))
         }catch(e){
             console.log(e.message)
             switch (e.message){
