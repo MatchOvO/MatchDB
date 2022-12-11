@@ -1,13 +1,13 @@
 {
   "name": "matchdb",
-  "version": "0.2.3",
+  "version": "0.6.0",
   "private": true,
   "scripts": {
-    "normalize": "concurrently \"pm2 start ./bin/www\" \"node ./bin/normalize.js\" \"pm2 save\"",
-    "on": "pm2 start ./bin/www",
-    "off": "pm2 stop ./bin/www",
-    "restart": "pm2 restart ./bin/www",
-    "start": "node ./bin/www"
+    "normalize": "concurrently \"pm2 start ./bin/MatchDB\" \"node ./bin/normalize.js\" \"pm2 save\"",
+    "on": "pm2 start ./bin/MatchDB",
+    "off": "pm2 stop ./bin/MatchDB",
+    "restart": "pm2 restart ./bin/MatchDB",
+    "start": "node ./bin/MatchDB"
   },
   "dependencies": {
     "axios": "^0.27.2",
@@ -17,6 +17,7 @@
     "express": "^4.16.1",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
+    "param-validator.js": "^1.1.4",
     "pm2": "^5.2.0",
     "pug": "2.0.0-beta11"
   },

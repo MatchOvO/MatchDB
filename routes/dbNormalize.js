@@ -8,11 +8,12 @@ const contextCheck = require('../matchDB/modules/contextCheck')
 router.post('/', function(req, res, next) {
     const context = req.body;
     // check context
-    if (!(contextCheck('dbNormalize',context).result)){
+    const checkResult = contextCheck('dbNormalize',context)
+    if (!checkResult.result){
         res.status(400)
         return res.send({
             status:411,
-            msg:'[MatchDB]: post or context format error,please use JSON to post or use the correct context format'
+            msg:checkResult.msg
         })
     }
     // operation
